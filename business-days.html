@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Business Days Left</title>
+  <title>Business Days Countdown</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      background: #f0f2f5;
       margin: 0;
-      padding: 20px;
+      padding: 40px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -16,17 +16,18 @@
     }
     .counter-box {
       background: white;
-      padding: 30px;
+      padding: 30px 40px;
       border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
-    .counter-box h1 {
-      margin: 0 0 10px;
-      font-size: 1.8rem;
+    h1 {
+      margin-bottom: 15px;
+      font-size: 24px;
     }
-    .counter-box p {
-      font-size: 1.5rem;
+    .days, .timer {
+      font-size: 20px;
+      margin: 5px 0;
       color: #2c3e50;
     }
   </style>
@@ -34,22 +35,61 @@
 <body>
   <div class="counter-box">
     <h1>Business Days Left This Month</h1>
-    <p id="business-days"></p>
+    <div class="days" id="business-days">Loading...</div>
+    <div class="timer" id="countdown"></div>
   </div>
 
   <script>
-    function getBusinessDaysLeft() {
+    async function getUKBankHolidays() {
+      const response = await fetch("https://www.gov.uk/bank-holidays.json");
+      const data = await response.json();
+      return data["england-and-wales"].events.map(event => event.date);
+    }
+
+    async function calculateBusinessDaysLeft() {
+      const bankHolidays = await getUKBankHolidays();
       const today = new Date();
       const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
       let count = 0;
+
       for (let d = new Date(today); d <= endOfMonth; d.setDate(d.getDate() + 1)) {
         const day = d.getDay();
-        if (day !== 0 && day !== 6) count++; // Exclude Sunday (0) and Saturday (6)
+        const isoDate = d.toISOString().split('T')[0];
+        const isWeekend = day === 0 || day === 6;
+        const isBankHoliday = bankHolidays.includes(isoDate);
+        if (!isWeekend && !isBankHoliday) count++;
       }
-      return count;
+
+      document.getElementById("business-days").textContent = `${count} working day${count !== 1 ? 's' : ''} left`;
     }
 
-    document.getElementById("business-days").textContent = getBusinessDaysLeft();
+    function startCountdown() {
+      const now = new Date();
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+      function updateTimer() {
+        const now = new Date();
+        const diff = endOfMonth - now;
+
+        if (diff <= 0) {
+          document.getElementById("countdown").textContent = "Time's up!";
+          return;
+        }
+
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        document.getElementById("countdown").textContent =
+          `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s remaining`;
+      }
+
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    calculateBusinessDaysLeft();
+    startCountdown();
   </script>
 </body>
 </html>

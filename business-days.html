@@ -3,30 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <title>Business Days Left</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
       font-family: Arial, sans-serif;
       background: #f0f2f5;
-      margin: 0;
-      padding: 40px;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
     }
     .counter-box {
       background: white;
-      padding: 30px 40px;
+      padding: 2rem 3rem;
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
       text-align: center;
+      max-width: 90%;
+      box-sizing: border-box;
     }
     h1 {
-      margin-bottom: 15px;
-      font-size: 24px;
+      margin-bottom: 1rem;
+      font-size: 2rem;
     }
     .days {
-      font-size: 20px;
+      font-size: 1.5rem;
       color: #2c3e50;
     }
   </style>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Business Days Countdown</title>
+  <title>Business Days Left</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -25,9 +25,8 @@
       margin-bottom: 15px;
       font-size: 24px;
     }
-    .days, .timer {
+    .days {
       font-size: 20px;
-      margin: 5px 0;
       color: #2c3e50;
     }
   </style>
@@ -36,7 +35,6 @@
   <div class="counter-box">
     <h1>Business Days Left This Month</h1>
     <div class="days" id="business-days">Loading...</div>
-    <div class="timer" id="countdown"></div>
   </div>
 
   <script>
@@ -46,6 +44,12 @@
       return data["england-and-wales"].events.map(event => event.date);
     }
 
+    function isBusinessDay(date, bankHolidays) {
+      const day = date.getDay();
+      const isoDate = date.toISOString().split('T')[0];
+      return day !== 0 && day !== 6 && !bankHolidays.includes(isoDate);
+    }
+
     async function calculateBusinessDaysLeft() {
       const bankHolidays = await getUKBankHolidays();
       const today = new Date();
@@ -53,43 +57,14 @@
       let count = 0;
 
       for (let d = new Date(today); d <= endOfMonth; d.setDate(d.getDate() + 1)) {
-        const day = d.getDay();
-        const isoDate = d.toISOString().split('T')[0];
-        const isWeekend = day === 0 || day === 6;
-        const isBankHoliday = bankHolidays.includes(isoDate);
-        if (!isWeekend && !isBankHoliday) count++;
+        if (isBusinessDay(d, bankHolidays)) count++;
       }
 
-      document.getElementById("business-days").textContent = `${count} working day${count !== 1 ? 's' : ''} left`;
-    }
-
-    function startCountdown() {
-      const now = new Date();
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-
-      function updateTimer() {
-        const now = new Date();
-        const diff = endOfMonth - now;
-
-        if (diff <= 0) {
-          document.getElementById("countdown").textContent = "Time's up!";
-          return;
-        }
-
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-
-        document.getElementById("countdown").textContent =
-          `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s remaining`;
-      }
-
-      updateTimer();
-      setInterval(updateTimer, 1000);
+      document.getElementById("business-days").textContent =
+        `${count} working day${count !== 1 ? 's' : ''} left`;
     }
 
     calculateBusinessDaysLeft();
-    startCountdown();
   </script>
 </body>
 </html>

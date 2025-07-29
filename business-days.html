@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Business Days Left</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .counter-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .counter-box h1 {
+      margin: 0 0 10px;
+      font-size: 1.8rem;
+    }
+    .counter-box p {
+      font-size: 1.5rem;
+      color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+  <div class="counter-box">
+    <h1>Business Days Left This Month</h1>
+    <p id="business-days"></p>
+  </div>
+
+  <script>
+    function getBusinessDaysLeft() {
+      const today = new Date();
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      let count = 0;
+      for (let d = new Date(today); d <= endOfMonth; d.setDate(d.getDate() + 1)) {
+        const day = d.getDay();
+        if (day !== 0 && day !== 6) count++; // Exclude Sunday (0) and Saturday (6)
+      }
+      return count;
+    }
+
+    document.getElementById("business-days").textContent = getBusinessDaysLeft();
+  </script>
+</body>
+</html>
